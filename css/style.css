@@ -21,10 +21,10 @@ canvas#canvas {
 }
 
 div#beach {
-  background-image: url(https://img.freepik.com/free-photo/tropical-beach_74190-188.jpg?size=626&ext=jpg&ga=GA1.1.385483025.1705593205&semt=ais);
+  background-image: url();
   /* background-size: cover; */
   background-position: bottom right;
-  background-size: 1700px;
+  background-size: 10px;
   background-repeat: no-repeat;
 }
 
@@ -40,10 +40,13 @@ div#video iframe {
 }
 
 #people {
-  position: absolute;
+  margin-left: 180px;
+  margin-top: 380px;
   bottom: 65px;
-  left: 40px;
-  width: 140px;
+  left: 400px;
+  width: 620px;
+  height:850px;
+  border-radius: 8%;  
 }
 
 #car {
@@ -433,13 +436,9 @@ div#sea {
   }
 
   #people {
-    margin-left: 180px;
-    margin-top: 380px;
-    bottom: 65px;
-    left: 400px;
-    width: 20px;
-    height:850px;
-    border-radius: 8%; 
+    margin-top: 100px;
+    width:800px;
+    height:1400px;
   }
 
   div#beach {
@@ -460,4 +459,3 @@ div#sea {
     right: 230px;
   }
 }
-
