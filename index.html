@@ -1,66 +1,257 @@
-<!DOCTYPR html>
-
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Birthday Gift </title>
-        
-        <!-- Link CSS Style.css file-->
-        
-        <link rel="stylesheet" href="css/style.css">
-        
-    </head>
-    <body>
-        <div class='moon'>
-            <div class='crater1'></div>
-            <div class='crater2'></div>
-            <div class='crater3'></div>
-        </div>
-        
-        <canvas id="canvas"></canvas>
-        
-        <div id="sea"></div>
-        <div id="beach"></div>
-        
-        <img src="https://github.com/patefkae/ytt.github.io/blob/main/WhatsApp%20Image%202024-08-23%20at%2017.58.21_ae59636b.jpg?raw=true" alt="Jumping-people" id="people" />
-        
-        <div id="merrywrap" class="merrywrap">
-            <div class="giftbox">
-                <div class="cover">
-                    <div></div>
-                </div>
-                
-                <div class="box"></div>
+<head>
+    <meta charset="UTF-8">
+    <title>Birthday Gift</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: black; }
+        #countdown {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 40px;
+        }
+        #birthdayMessage {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Countdown Timer -->
+    <div id="countdown"></div>
+
+    <!-- Birthday Message -->
+    <div id="birthdayMessage"></div>
+
+    <div class='moon'>
+        <div class='crater1'></div>
+        <div class='crater2'></div>
+        <div class='crater3'></div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <div id="sea"></div>
+    <div id="beach"></div>
+
+    <img src="https://github.com/patefkae/mummy.github.io/blob/main/mm.jpg?raw=true" alt="Jumping-people" id="people" />
+
+    <div id="merrywrap" class="merrywrap">
+        <div class="giftbox">
+            <div class="cover">
+                <div></div>
             </div>
-            
-            <div class="icons">
-                <div class="row">
-                    <span>H</span>
-                    <span>a</span>
-                    <span>p</span>
-                    <span>p</span>
-                    <span>y</span>
-                    
-                </div>
-                <div class="row">
-                    <span>B</span>
-                    <span>i</span>
-                    <span>r</span>
-                    <span>t</span>
-                    <span>h</span>
-                    <span>d</span>
-                    <span>a</span>
-                    <span>y</span>
-                </div>
-                
-                
+            <div class="box"></div>
+        </div>
+        <div class="icons">
+            <div class="row">
+                <span>H</span>
+                <span>a</span>
+                <span>p</span>
+                <span>p</span>
+                <span>y</span>
+            </div>
+            <div class="row">
+                <span>B</span>
+                <span>i</span>
+                <span>r</span>
+                <span>t</span>
+                <span>h</span>
+                <span>d</span>
+                <span>a</span>
+                <span>y</span>
             </div>
         </div>
-        
-        <div id="video"></div>
-        
-        
-        <script src="js/index.js"></script>
-        
-    </body>
+    </div>
+
+    <div id="video"></div>
+
+    <!-- Fireworks and Birthday Interaction -->
+    <script>
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let fireworks = [];
+        let particles = [];
+        let hue = 120;
+        let mousedown = false;
+        let mouseX, mouseY;
+
+        // Countdown Timer
+        var countdownTime = 10; // Countdown in seconds
+        var countdownEl = document.getElementById('countdown');
+        var countdownInterval = setInterval(function () {
+            countdownEl.innerHTML = 'Fireworks in: ' + countdownTime + ' seconds';
+            countdownTime--;
+            if (countdownTime < 0) {
+                countdownEl.innerHTML = "Happy Birthday!";
+                startFireworks();
+                clearInterval(countdownInterval);
+            }
+        }, 1000);
+
+        // Start Fireworks
+        function startFireworks() {
+            fireworks.push(new Firework(canvas.width / 2, canvas.height, random(0, canvas.width), random(0, canvas.height / 2)));
+        }
+
+        function random(min, max) {
+            return Math.random() * (min - max) + min;
+        }
+
+        function Firework(sx, sy, tx, ty) {
+            this.x = sx;
+            this.y = sy;
+            this.sx = sx;
+            this.sy = sy;
+            this.tx = tx;
+            this.ty = ty;
+            this.distanceToTarget = calculateDistance(sx, sy, tx, ty);
+            this.distanceTraveled = 0;
+            this.coordinates = [];
+            this.coordinateCount = 3;
+            while (this.coordinateCount--) {
+                this.coordinates.push([this.x, this.y]);
+            }
+            this.angle = Math.atan2(ty - sy, tx - sx);
+            this.speed = 2;
+            this.acceleration = 1.05;
+            this.brightness = random(50, 80);
+            this.targetRadius = 1;
+        }
+
+        Firework.prototype.update = function (index) {
+            this.coordinates.pop();
+            this.coordinates.unshift([this.x, this.y]);
+            if (this.targetRadius < 8) {
+                this.targetRadius += 0.3;
+            } else {
+                this.targetRadius = 1;
+            }
+            this.speed *= this.acceleration;
+            let vx = (Math.cos(this.angle)) * this.speed;
+            let vy = (Math.sin(this.angle) + 0.05) * this.speed;
+            this.distanceTraveled = calculateDistance(this.sx, this.sy, this.x + vx, this.y + vy);
+            if (this.distanceTraveled >= this.distanceToTarget) {
+                createParticles(this.tx, this.ty);
+                fireworks.splice(index, 1);
+            } else {
+                this.x += vx;
+                this.y += vy;
+            }
+        };
+
+        Firework.prototype.draw = function () {
+            ctx.beginPath();
+            ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+            ctx.lineTo(this.x, this.y);
+            ctx.strokeStyle = `hsl(${hue}, 100%, ${this.brightness}%)`;
+            ctx.stroke();
+        };
+
+        function createParticles(x, y) {
+            var particleCount = 30;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle(x, y));
+            }
+        }
+
+        function Particle(x, y) {
+            this.x = x;
+            this.y = y;
+            this.coordinates = [];
+            this.coordinateCount = 5;
+            while (this.coordinateCount--) {
+                this.coordinates.push([this.x, this.y]);
+            }
+            this.angle = random(0, Math.PI * 2);
+            this.speed = random(1, 10);
+            this.friction = 0.95;
+            this.gravity = 1;
+            this.hue = random(hue - 20, hue + 20);
+            this.brightness = random(50, 80);
+            this.alpha = 1;
+            this.decay = random(0.015, 0.03);
+        }
+
+        Particle.prototype.update = function (index) {
+            this.coordinates.pop();
+            this.coordinates.unshift([this.x, this.y]);
+            this.speed *= this.friction;
+            this.x += Math.cos(this.angle) * this.speed;
+            this.y += Math.sin(this.angle) * this.speed + this.gravity;
+            this.alpha -= this.decay;
+            if (this.alpha <= this.decay) {
+                particles.splice(index, 1);
+            }
+        };
+
+        Particle.prototype.draw = function () {
+            ctx.beginPath();
+            ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+            ctx.lineTo(this.x, this.y);
+            ctx.strokeStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`;
+            ctx.stroke();
+        };
+
+        function loop() {
+            requestAnimationFrame(loop);
+            hue += 0.5;
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = 'lighter';
+            fireworks.forEach((firework, index) => {
+                firework.update(index);
+                firework.draw();
+            });
+            particles.forEach((particle, index) => {
+                particle.update(index);
+                particle.draw();
+            });
+        }
+
+        window.onload = function () {
+            loop();
+        };
+
+        function calculateDistance(x1, y1, x2, y2) {
+            return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+        }
+
+        var birthdayMessages = [
+            "Wishing You the Best Day!",
+            "Hope All Your Dreams Come True!",
+            "You're Awesome, Happy Birthday!",
+            "Make a Wish!",
+            "Party Time! 🎉"
+        ];
+
+        function openBox() {
+            var randomMessage = birthdayMessages[Math.floor(Math.random() * birthdayMessages.length)];
+            document.getElementById('birthdayMessage').innerHTML = randomMessage;
+            createConfetti();
+        }
+
+        function createConfetti() {
+            var confettiCount = 100;
+            for (let i = 0; i < confettiCount; i++) {
+                let confettiParticle = new Particle(random(0, canvas.width), random(0, canvas.height / 2));
+                confettiParticle.speed = random(2, 5);
+                confettiParticle.gravity = random(0.02, 0.1);
+                particles.push(confettiParticle);
+            }
+        }
+    </script>
+
+</body>
 </html>
